@@ -533,14 +533,18 @@
             const marchLimit = parseInt(document.getElementById('marchLimit').value) || 60000;
             const rallyCapacity = parseInt(document.getElementById('rallyCapacity').value) || 100000;
 
-            // Calculate per-march breakdown
+            // Calculate per-march breakdown with extra troops distributed
             const infantryPerMarch = Math.floor(result.squad.infantry / marches);
             const lancersPerMarch = Math.floor(result.squad.lancers / marches);
             const marksmenPerMarch = Math.floor(result.squad.marksmen / marches);
+            const extraInfantry = result.squad.infantry % marches;
+            const extraLancers = result.squad.lancers % marches;
+            const extraMarksmen = result.squad.marksmen % marches;
 
             // Display results table
             const tableBody = document.getElementById('results-table-body');
-            tableBody.innerHTML = `
+
+            let tableHTML = `
                 <tr>
                     <td><strong>Rally</strong></td>
                     <td class="troop-cell">
@@ -557,39 +561,36 @@
                     </td>
                     <td><strong>${(result.rally.infantry + result.rally.lancers + result.rally.marksmen).toLocaleString()}</strong></td>
                 </tr>
-                <tr>
-                    <td><strong>Squad (${marches} marches)</strong></td>
-                    <td class="troop-cell">
-                        <div class="troop-icon infantry">I</div>
-                        ${result.squad.infantry.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
-                        <div class="troop-icon lancer">L</div>
-                        ${result.squad.lancers.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
-                        <div class="troop-icon marksman">M</div>
-                        ${result.squad.marksmen.toLocaleString()}
-                    </td>
-                    <td><strong>${(result.squad.infantry + result.squad.lancers + result.squad.marksmen).toLocaleString()}</strong></td>
-                </tr>
-                <tr>
-                    <td><strong>Per Squad</strong></td>
-                    <td class="troop-cell">
-                        <div class="troop-icon infantry">I</div>
-                        ${infantryPerMarch.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
-                        <div class="troop-icon lancer">L</div>
-                        ${lancersPerMarch.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
-                        <div class="troop-icon marksman">M</div>
-                        ${marksmenPerMarch.toLocaleString()}
-                    </td>
-                    <td><strong>${Math.floor((result.squad.infantry + result.squad.lancers + result.squad.marksmen) / marches).toLocaleString()}</strong></td>
-                </tr>
             `;
+
+            // Add individual march rows
+            for (let i = 1; i <= marches; i++) {
+                const marchInfantry = infantryPerMarch + (i <= extraInfantry ? 1 : 0);
+                const marchLancers = lancersPerMarch + (i <= extraLancers ? 1 : 0);
+                const marchMarksmen = marksmenPerMarch + (i <= extraMarksmen ? 1 : 0);
+                const marchTotal = marchInfantry + marchLancers + marchMarksmen;
+
+                tableHTML += `
+                    <tr>
+                        <td><strong>March ${i}</strong></td>
+                        <td class="troop-cell">
+                            <div class="troop-icon infantry">I</div>
+                            ${marchInfantry.toLocaleString()}
+                        </td>
+                        <td class="troop-cell">
+                            <div class="troop-icon lancer">L</div>
+                            ${marchLancers.toLocaleString()}
+                        </td>
+                        <td class="troop-cell">
+                            <div class="troop-icon marksman">M</div>
+                            ${marchMarksmen.toLocaleString()}
+                        </td>
+                        <td><strong>${marchTotal.toLocaleString()}</strong></td>
+                    </tr>
+                `;
+            }
+
+            tableBody.innerHTML = tableHTML;
 
             // Update summary
             const totalUsed = result.totalUsed.infantry + result.totalUsed.lancers + result.totalUsed.marksmen;
