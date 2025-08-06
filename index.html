@@ -334,7 +334,7 @@
             <div id="results" class="results-section">
                 <div class="results-grid">
                     <div class="result-card">
-                        <h3>🎖️ Squad Formation</h3>
+                        <h3>🎖️ Squad Formation (Per Squad)</h3>
                         <div id="squad-results"></div>
                     </div>
                     <div class="result-card">
@@ -569,72 +569,39 @@
             const extraLancers = result.squad.lancers % marches;
             const extraMarksmen = result.squad.marksmen % marches;
 
-            // Display squad results with detailed breakdown
+            // Display squad results (per squad since they're all the same)
             const squadResults = document.getElementById('squad-results');
             squadResults.innerHTML = `
                 <div class="troop-result">
                     <div class="troop-name">
                         <div class="troop-icon infantry">I</div>
-                        <span>Infantry</span>
+                        <span>Infantry per squad</span>
                     </div>
-                    <span>${result.squad.infantry.toLocaleString()}</span>
+                    <span>${infantryPerMarch.toLocaleString()}</span>
                 </div>
                 <div class="troop-result">
                     <div class="troop-name">
                         <div class="troop-icon lancer">L</div>
-                        <span>Lancers</span>
+                        <span>Lancers per squad</span>
                     </div>
-                    <span>${result.squad.lancers.toLocaleString()}</span>
+                    <span>${lancersPerMarch.toLocaleString()}</span>
                 </div>
                 <div class="troop-result">
                     <div class="troop-name">
                         <div class="troop-icon marksman">M</div>
-                        <span>Marksmen</span>
+                        <span>Marksmen per squad</span>
                     </div>
-                    <span>${result.squad.marksmen.toLocaleString()}</span>
+                    <span>${marksmenPerMarch.toLocaleString()}</span>
                 </div>
                 <div class="troop-result" style="border-top: 2px solid #dee2e6; margin-top: 0.5rem; padding-top: 0.5rem;">
                     <div class="troop-name">
-                        <span><strong>Total Squad Troops</strong></span>
+                        <span><strong>Total per squad</strong></span>
                     </div>
-                    <span><strong>${(result.squad.infantry + result.squad.lancers + result.squad.marksmen).toLocaleString()}</strong></span>
-                </div>
-                <div class="troop-result" style="background: #f8f9fa; margin-top: 0.5rem; padding: 0.5rem; border-radius: 5px; font-size: 0.9rem;">
-                    <div class="troop-name">
-                        <span>Per March (${marches} marches):</span>
-                    </div>
-                    <span></span>
+                    <span><strong>${Math.floor((result.squad.infantry + result.squad.lancers + result.squad.marksmen) / marches).toLocaleString()}</strong></span>
                 </div>
                 <div class="troop-result" style="font-size: 0.9rem; color: #666;">
                     <div class="troop-name">
-                        <div class="troop-icon infantry">I</div>
-                        <span>Infantry per march</span>
-                    </div>
-                    <span>${infantryPerMarch.toLocaleString()}${extraInfantry > 0 ? ` (+${extraInfantry} extra)` : ''}</span>
-                </div>
-                <div class="troop-result" style="font-size: 0.9rem; color: #666;">
-                    <div class="troop-name">
-                        <div class="troop-icon lancer">L</div>
-                        <span>Lancers per march</span>
-                    </div>
-                    <span>${lancersPerMarch.toLocaleString()}${extraLancers > 0 ? ` (+${extraLancers} extra)` : ''}</span>
-                </div>
-                <div class="troop-result" style="font-size: 0.9rem; color: #666;">
-                    <div class="troop-name">
-                        <div class="troop-icon marksman">M</div>
-                        <span>Marksmen per march</span>
-                    </div>
-                    <span>${marksmenPerMarch.toLocaleString()}${extraMarksmen > 0 ? ` (+${extraMarksmen} extra)` : ''}</span>
-                </div>
-                <div class="troop-result" style="font-size: 0.9rem; color: #666;">
-                    <div class="troop-name">
-                        <span>Total per march</span>
-                    </div>
-                    <span>${Math.floor((result.squad.infantry + result.squad.lancers + result.squad.marksmen) / marches).toLocaleString()}</span>
-                </div>
-                <div class="troop-result" style="font-size: 0.9rem; color: #666;">
-                    <div class="troop-name">
-                        <span>March limit</span>
+                        <span>Squad limit</span>
                     </div>
                     <span>${marchLimit.toLocaleString()}</span>
                 </div>
