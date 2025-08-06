@@ -188,17 +188,7 @@
             background-color: #f8f9fa;
         }
 
-        .troop-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
 
-        .troop-cell .troop-icon {
-            flex-shrink: 0;
-        }
 
         .summary-section {
             background: white;
@@ -586,18 +576,9 @@
             let tableHTML = `
                 <tr>
                     <td><strong>Rally</strong></td>
-                    <td class="troop-cell">
-                        <div class="troop-icon infantry">I</div>
-                        ${result.rally.infantry.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
-                        <div class="troop-icon lancer">L</div>
-                        ${result.rally.lancers.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
-                        <div class="troop-icon marksman">M</div>
-                        ${result.rally.marksmen.toLocaleString()}
-                    </td>
+                    <td>${result.rally.infantry.toLocaleString()}</td>
+                    <td>${result.rally.lancers.toLocaleString()}</td>
+                    <td>${result.rally.marksmen.toLocaleString()}</td>
                     <td><strong>${(result.rally.infantry + result.rally.lancers + result.rally.marksmen).toLocaleString()}</strong></td>
                 </tr>
             `;
@@ -610,18 +591,9 @@
                 tableHTML += `
                     <tr>
                         <td><strong>March ${i + 1}</strong></td>
-                        <td class="troop-cell">
-                            <div class="troop-icon infantry">I</div>
-                            ${march.infantry.toLocaleString()}
-                        </td>
-                        <td class="troop-cell">
-                            <div class="troop-icon lancer">L</div>
-                            ${march.lancers.toLocaleString()}
-                        </td>
-                        <td class="troop-cell">
-                            <div class="troop-icon marksman">M</div>
-                            ${march.marksmen.toLocaleString()}
-                        </td>
+                        <td>${march.infantry.toLocaleString()}</td>
+                        <td>${march.lancers.toLocaleString()}</td>
+                        <td>${march.marksmen.toLocaleString()}</td>
                         <td><strong>${marchTotal.toLocaleString()}</strong></td>
                     </tr>
                 `;
