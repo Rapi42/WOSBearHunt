@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whiteout Survival - Formation Calculator</title>
+    <title>Whiteout Survival - Advanced Formation Calculator</title>
     <style>
         * {
             margin: 0;
@@ -153,38 +153,42 @@
             display: block;
         }
 
-        .results-table {
-            width: 100%;
-            border-collapse: collapse;
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
+        }
+
+        .result-card {
             background: white;
+            padding: 1.5rem;
             border-radius: 10px;
-            overflow: hidden;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .results-table th {
-            background: #667eea;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-            font-weight: 600;
+        .result-card h3 {
+            color: #495057;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 0.5rem;
         }
 
-        .results-table td {
-            padding: 1rem;
-            text-align: center;
-            border-bottom: 1px solid #dee2e6;
+        .troop-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f3f4;
         }
 
-        .results-table tr:last-child td {
+        .troop-result:last-child {
             border-bottom: none;
         }
 
-        .troop-cell {
+        .troop-name {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 0.5rem;
         }
 
@@ -260,17 +264,12 @@
                 grid-template-columns: 1fr;
             }
             
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
             .header h1 {
                 font-size: 2rem;
-            }
-
-            .results-table {
-                font-size: 0.9rem;
-            }
-
-            .results-table th,
-            .results-table td {
-                padding: 0.5rem;
             }
         }
     </style>
@@ -279,7 +278,7 @@
     <div class="container">
         <div class="header">
             <h1>⚔️ Whiteout Survival</h1>
-            <p>Formation Calculator - Classic Version</p>
+            <p>Advanced Formation Calculator - Optimize Your Troop Deployment</p>
         </div>
 
         <div class="content">
@@ -323,46 +322,50 @@
                         <label>March Deployment Capacity:</label>
                         <input type="number" id="rallyCapacity" min="1000" value="100000">
                     </div>
+                    <div class="form-row">
+                        <label>Rally Quality:</label>
+                        <select id="rallyQuality" style="width: 120px; padding: 0.5rem; border: 2px solid #dee2e6; border-radius: 5px; font-size: 1rem;">
+                            <option value="bad">Bad</option>
+                            <option value="good">Good</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="input-group">
-                    <h3>📊 Troop Ratio</h3>
+                    <h3>📊 Minimum Requirements</h3>
                     <div class="form-row">
-                        <label>Infantry %:</label>
-                        <input type="number" id="infantryRatio" min="0" max="100" value="10">
+                        <label>Min Infantry per Unit:</label>
+                        <input type="number" id="minInfantry" min="0" value="5000">
                     </div>
                     <div class="form-row">
-                        <label>Lancers %:</label>
-                        <input type="number" id="lancerRatio" min="0" max="100" value="40">
+                        <label>Min Lancers per Unit:</label>
+                        <input type="number" id="minLancers" min="0" value="5000">
                     </div>
                     <div class="form-row">
-                        <label>Marksmen %:</label>
-                        <input type="number" id="marksmanRatio" min="0" max="100" value="50">
+                        <label>Min Marksmen per Unit:</label>
+                        <input type="number" id="minMarksmen" min="0" value="5000">
                     </div>
                 </div>
             </div>
 
             <button class="calculate-btn" onclick="calculateFormation()">
-                🧮 Calculate Formation
+                🧮 Calculate Optimal Formation
             </button>
 
             <div id="error-message" class="error" style="display: none;"></div>
             <div id="success-message" class="success" style="display: none;"></div>
 
             <div id="results" class="results-section">
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th>Formation</th>
-                            <th>Infantry</th>
-                            <th>Lancers</th>
-                            <th>Marksmen</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="results-table-body">
-                    </tbody>
-                </table>
+                <div class="results-grid">
+                    <div class="result-card">
+                        <h3>🎖️ Squad Formation (Per Squad)</h3>
+                        <div id="squad-results"></div>
+                    </div>
+                    <div class="result-card">
+                        <h3>🚀 Rally Formation</h3>
+                        <div id="rally-results"></div>
+                    </div>
+                </div>
 
                 <div class="summary-section">
                     <h3>📈 Summary</h3>
@@ -407,7 +410,7 @@
         </div>
 
         <div class="footer">
-            <p>Need more advanced options? <a href="advanced.html">Go to Advanced Version</a></p>
+            <p>Prefer a simpler version? <a href="index.html">Go to Classic Version</a></p>
         </div>
     </div>
 
@@ -424,9 +427,10 @@
             const marches = parseInt(document.getElementById('marches').value) || 5;
             const marchLimit = parseInt(document.getElementById('marchLimit').value) || 60000;
             const rallyCapacity = parseInt(document.getElementById('rallyCapacity').value) || 100000;
-            const infantryRatio = parseInt(document.getElementById('infantryRatio').value) || 10;
-            const lancerRatio = parseInt(document.getElementById('lancerRatio').value) || 40;
-            const marksmanRatio = parseInt(document.getElementById('marksmanRatio').value) || 50;
+            const minInfantry = parseInt(document.getElementById('minInfantry').value) || 0;
+            const minLancers = parseInt(document.getElementById('minLancers').value) || 0;
+            const minMarksmen = parseInt(document.getElementById('minMarksmen').value) || 0;
+            const rallyQuality = document.getElementById('rallyQuality').value;
 
             // Validate inputs
             if (marches < 3 || marches > 6) {
@@ -439,16 +443,10 @@
                 return;
             }
 
-            const totalRatio = infantryRatio + lancerRatio + marksmanRatio;
-            if (totalRatio !== 100) {
-                showError('Ratios must add up to 100% (currently ' + totalRatio + '%)');
-                return;
-            }
-
             // Calculate formation
             const result = allocateTroops({
                 infantry, lancers, marksmen, marches, marchLimit, rallyCapacity,
-                infantryRatio, lancerRatio, marksmanRatio
+                minInfantry, minLancers, minMarksmen, rallyQuality
             });
 
             if (result.error) {
@@ -464,53 +462,197 @@
         function allocateTroops(params) {
             const {
                 infantry, lancers, marksmen, marches, marchLimit, rallyCapacity,
-                infantryRatio, lancerRatio, marksmanRatio
+                minInfantry, minLancers, minMarksmen, rallyQuality
             } = params;
 
+            // Calculate total minimum requirements
+            const totalMinInfantry = minInfantry * (marches + 1); // +1 for rally
+            const totalMinLancers = minLancers * (marches + 1);
+            const totalMinMarksmen = minMarksmen * (marches + 1);
+
+            // Check if we have enough troops for minimums
+            if (infantry < totalMinInfantry) {
+                return { error: `Not enough Infantry. Need ${totalMinInfantry.toLocaleString()}, have ${infantry.toLocaleString()}` };
+            }
+            if (lancers < totalMinLancers) {
+                return { error: `Not enough Lancers. Need ${totalMinLancers.toLocaleString()}, have ${lancers.toLocaleString()}` };
+            }
+            if (marksmen < totalMinMarksmen) {
+                return { error: `Not enough Marksmen. Need ${totalMinMarksmen.toLocaleString()}, have ${marksmen.toLocaleString()}` };
+            }
+
             // Initialize allocation
-            const squad = { infantry: 0, lancers: 0, marksmen: 0 };
-            const rally = { infantry: 0, lancers: 0, marksmen: 0 };
+            const squad = {
+                infantry: minInfantry * marches,
+                lancers: minLancers * marches,
+                marksmen: minMarksmen * marches
+            };
 
-            // Calculate target ratios
-            const targetRallyInfantry = Math.floor(rallyCapacity * (infantryRatio / 100));
-            const targetRallyLancers = Math.floor(rallyCapacity * (lancerRatio / 100));
-            const targetRallyMarksmen = Math.floor(rallyCapacity * (marksmanRatio / 100));
+            const rally = {
+                infantry: minInfantry,
+                lancers: minLancers,
+                marksmen: minMarksmen
+            };
 
-            // Fill rally first with the target ratio
-            const rallyMarksmenToAdd = Math.min(marksmen, targetRallyMarksmen);
-            const rallyLancersToAdd = Math.min(lancers, targetRallyLancers);
-            const rallyInfantryToAdd = Math.min(infantry, targetRallyInfantry);
+            // Calculate remaining troops after minimum allocation
+            let remainingInfantry = infantry - totalMinInfantry;
+            let remainingLancers = lancers - totalMinLancers;
+            let remainingMarksmen = marksmen - totalMinMarksmen;
 
-            rally.marksmen = rallyMarksmenToAdd;
-            rally.lancers = rallyLancersToAdd;
-            rally.infantry = rallyInfantryToAdd;
+            if (rallyQuality === 'good') {
+                // GOOD RALLY: Fill rally first with 10% Infantry, 40% Lancers, 50% Marksmen ratio
+                const rallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
+                
+                if (rallySpace > 0) {
+                    // Calculate target rally composition (10% Infantry, 40% Lancers, 50% Marksmen)
+                    const targetRallyInfantry = Math.floor(rallyCapacity * 0.10);
+                    const targetRallyLancers = Math.floor(rallyCapacity * 0.40);
+                    const targetRallyMarksmen = Math.floor(rallyCapacity * 0.50);
+                    
+                    // Fill rally with Marksmen first (50% of capacity)
+                    const rallyMarksmenNeeded = Math.max(0, targetRallyMarksmen - rally.marksmen);
+                    const rallyMarksmenToAdd = Math.min(remainingMarksmen, rallyMarksmenNeeded, rallySpace);
+                    if (rallyMarksmenToAdd > 0) {
+                        rally.marksmen += rallyMarksmenToAdd;
+                        remainingMarksmen -= rallyMarksmenToAdd;
+                    }
+                    
+                    // Fill rally with Lancers (40% of capacity)
+                    const remainingRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
+                    const rallyLancersNeeded = Math.max(0, targetRallyLancers - rally.lancers);
+                    const rallyLancersToAdd = Math.min(remainingLancers, rallyLancersNeeded, remainingRallySpace);
+                    if (rallyLancersToAdd > 0) {
+                        rally.lancers += rallyLancersToAdd;
+                        remainingLancers -= rallyLancersToAdd;
+                    }
+                    
+                    // Fill rally with Infantry (10% of capacity)
+                    const finalRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
+                    const rallyInfantryNeeded = Math.max(0, targetRallyInfantry - rally.infantry);
+                    const rallyInfantryToAdd = Math.min(remainingInfantry, rallyInfantryNeeded, finalRallySpace);
+                    if (rallyInfantryToAdd > 0) {
+                        rally.infantry += rallyInfantryToAdd;
+                        remainingInfantry -= rallyInfantryToAdd;
+                    }
+                }
+                
+                // Now fill squads with remaining troops (Marksmen first, then Lancers, then Infantry)
+                const squadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                
+                // Fill squads with Marksmen
+                let squadMarksmenToAdd = Math.min(remainingMarksmen, squadSpace);
+                if (squadMarksmenToAdd > 0) {
+                    const marksmenPerMarch = Math.floor(squadMarksmenToAdd / marches);
+                    const extraMarksmen = squadMarksmenToAdd % marches;
+                    
+                    squad.marksmen += marksmenPerMarch * marches;
+                    // Distribute extra marksmen to first few marches
+                    for (let i = 0; i < extraMarksmen; i++) {
+                        squad.marksmen += 1;
+                    }
+                    remainingMarksmen -= squadMarksmenToAdd;
+                }
+                
+                // Fill squads with Lancers
+                const remainingSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                let squadLancersToAdd = Math.min(remainingLancers, remainingSquadSpace);
+                if (squadLancersToAdd > 0) {
+                    const lancersPerMarch = Math.floor(squadLancersToAdd / marches);
+                    const extraLancers = squadLancersToAdd % marches;
+                    
+                    squad.lancers += lancersPerMarch * marches;
+                    // Distribute extra lancers to first few marches
+                    for (let i = 0; i < extraLancers; i++) {
+                        squad.lancers += 1;
+                    }
+                    remainingLancers -= squadLancersToAdd;
+                }
+                
+                // Fill squads with Infantry
+                const finalSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                let squadInfantryToAdd = Math.min(remainingInfantry, finalSquadSpace);
+                if (squadInfantryToAdd > 0) {
+                    const infantryPerMarch = Math.floor(squadInfantryToAdd / marches);
+                    const extraInfantry = squadInfantryToAdd % marches;
+                    
+                    squad.infantry += infantryPerMarch * marches;
+                    // Distribute extra infantry to first few marches
+                    for (let i = 0; i < extraInfantry; i++) {
+                        squad.infantry += 1;
+                    }
+                    remainingInfantry -= squadInfantryToAdd;
+                }
+                
+            } else {
+                // BAD RALLY: Original algorithm - fill squads first, then rally
+                const squadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                const rallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
 
-            // Calculate remaining troops
-            let remainingInfantry = infantry - rallyInfantryToAdd;
-            let remainingLancers = lancers - rallyLancersToAdd;
-            let remainingMarksmen = marksmen - rallyMarksmenToAdd;
+                // Fill squads with Marksmen first (highest priority)
+                let squadMarksmenToAdd = Math.min(remainingMarksmen, squadSpace);
+                if (squadMarksmenToAdd > 0) {
+                    const marksmenPerMarch = Math.floor(squadMarksmenToAdd / marches);
+                    const extraMarksmen = squadMarksmenToAdd % marches;
+                    
+                    squad.marksmen += marksmenPerMarch * marches;
+                    // Distribute extra marksmen to first few marches
+                    for (let i = 0; i < extraMarksmen; i++) {
+                        squad.marksmen += 1;
+                    }
+                    remainingMarksmen -= squadMarksmenToAdd;
+                }
 
-            // Calculate total squad capacity
-            const totalSquadCapacity = marchLimit * marches;
+                // Fill squads with Lancers
+                const remainingSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                let squadLancersToAdd = Math.min(remainingLancers, remainingSquadSpace);
+                if (squadLancersToAdd > 0) {
+                    const lancersPerMarch = Math.floor(squadLancersToAdd / marches);
+                    const extraLancers = squadLancersToAdd % marches;
+                    
+                    squad.lancers += lancersPerMarch * marches;
+                    // Distribute extra lancers to first few marches
+                    for (let i = 0; i < extraLancers; i++) {
+                        squad.lancers += 1;
+                    }
+                    remainingLancers -= squadLancersToAdd;
+                }
 
-            // Calculate target squad ratios
-            const targetSquadInfantry = Math.floor(totalSquadCapacity * (infantryRatio / 100));
-            const targetSquadLancers = Math.floor(totalSquadCapacity * (lancerRatio / 100));
-            const targetSquadMarksmen = Math.floor(totalSquadCapacity * (marksmanRatio / 100));
+                // Fill squads with Infantry
+                const finalSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                let squadInfantryToAdd = Math.min(remainingInfantry, finalSquadSpace);
+                if (squadInfantryToAdd > 0) {
+                    const infantryPerMarch = Math.floor(squadInfantryToAdd / marches);
+                    const extraInfantry = squadInfantryToAdd % marches;
+                    
+                    squad.infantry += infantryPerMarch * marches;
+                    // Distribute extra infantry to first few marches
+                    for (let i = 0; i < extraInfantry; i++) {
+                        squad.infantry += 1;
+                    }
+                    remainingInfantry -= squadInfantryToAdd;
+                }
 
-            // Fill squads with remaining troops, trying to maintain ratio
-            const squadMarksmenToAdd = Math.min(remainingMarksmen, targetSquadMarksmen);
-            const squadLancersToAdd = Math.min(remainingLancers, targetSquadLancers);
-            const squadInfantryToAdd = Math.min(remainingInfantry, targetSquadInfantry);
+                // Now fill rally with remaining troops (Marksmen first, then Lancers, then Infantry)
+                let rallyMarksmenToAdd = Math.min(remainingMarksmen, rallySpace);
+                if (rallyMarksmenToAdd > 0) {
+                    rally.marksmen += rallyMarksmenToAdd;
+                    remainingMarksmen -= rallyMarksmenToAdd;
+                }
 
-            squad.marksmen = squadMarksmenToAdd;
-            squad.lancers = squadLancersToAdd;
-            squad.infantry = squadInfantryToAdd;
+                const remainingRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
+                let rallyLancersToAdd = Math.min(remainingLancers, remainingRallySpace);
+                if (rallyLancersToAdd > 0) {
+                    rally.lancers += rallyLancersToAdd;
+                    remainingLancers -= rallyLancersToAdd;
+                }
 
-            // Update remaining troops
-            remainingMarksmen -= squadMarksmenToAdd;
-            remainingLancers -= squadLancersToAdd;
-            remainingInfantry -= squadInfantryToAdd;
+                const finalRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
+                let rallyInfantryToAdd = Math.min(remainingInfantry, finalRallySpace);
+                if (rallyInfantryToAdd > 0) {
+                    rally.infantry += rallyInfantryToAdd;
+                    remainingInfantry -= rallyInfantryToAdd;
+                }
+            }
 
             return {
                 squad,
@@ -538,57 +680,80 @@
             const lancersPerMarch = Math.floor(result.squad.lancers / marches);
             const marksmenPerMarch = Math.floor(result.squad.marksmen / marches);
 
-            // Display results table
-            const tableBody = document.getElementById('results-table-body');
-            tableBody.innerHTML = `
-                <tr>
-                    <td><strong>Rally</strong></td>
-                    <td class="troop-cell">
+            // Display squad results (per squad since they're all the same)
+            const squadResults = document.getElementById('squad-results');
+            squadResults.innerHTML = `
+                <div class="troop-result">
+                    <div class="troop-name">
                         <div class="troop-icon infantry">I</div>
-                        ${result.rally.infantry.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
+                        <span>Infantry per squad</span>
+                    </div>
+                    <span>${infantryPerMarch.toLocaleString()}</span>
+                </div>
+                <div class="troop-result">
+                    <div class="troop-name">
                         <div class="troop-icon lancer">L</div>
-                        ${result.rally.lancers.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
+                        <span>Lancers per squad</span>
+                    </div>
+                    <span>${lancersPerMarch.toLocaleString()}</span>
+                </div>
+                <div class="troop-result">
+                    <div class="troop-name">
                         <div class="troop-icon marksman">M</div>
-                        ${result.rally.marksmen.toLocaleString()}
-                    </td>
-                    <td><strong>${(result.rally.infantry + result.rally.lancers + result.rally.marksmen).toLocaleString()}</strong></td>
-                </tr>
-                <tr>
-                    <td><strong>Squad (${marches} marches)</strong></td>
-                    <td class="troop-cell">
+                        <span>Marksmen per squad</span>
+                    </div>
+                    <span>${marksmenPerMarch.toLocaleString()}</span>
+                </div>
+                <div class="troop-result" style="border-top: 2px solid #dee2e6; margin-top: 0.5rem; padding-top: 0.5rem;">
+                    <div class="troop-name">
+                        <span><strong>Total per squad</strong></span>
+                    </div>
+                    <span><strong>${Math.floor((result.squad.infantry + result.squad.lancers + result.squad.marksmen) / marches).toLocaleString()}</strong></span>
+                </div>
+                <div class="troop-result" style="font-size: 0.9rem; color: #666;">
+                    <div class="troop-name">
+                        <span>Squad limit</span>
+                    </div>
+                    <span>${marchLimit.toLocaleString()}</span>
+                </div>
+            `;
+
+            // Display rally results
+            const rallyResults = document.getElementById('rally-results');
+            rallyResults.innerHTML = `
+                <div class="troop-result">
+                    <div class="troop-name">
                         <div class="troop-icon infantry">I</div>
-                        ${result.squad.infantry.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
+                        <span>Infantry</span>
+                    </div>
+                    <span>${result.rally.infantry.toLocaleString()}</span>
+                </div>
+                <div class="troop-result">
+                    <div class="troop-name">
                         <div class="troop-icon lancer">L</div>
-                        ${result.squad.lancers.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
+                        <span>Lancers</span>
+                    </div>
+                    <span>${result.rally.lancers.toLocaleString()}</span>
+                </div>
+                <div class="troop-result">
+                    <div class="troop-name">
                         <div class="troop-icon marksman">M</div>
-                        ${result.squad.marksmen.toLocaleString()}
-                    </td>
-                    <td><strong>${(result.squad.infantry + result.squad.lancers + result.squad.marksmen).toLocaleString()}</strong></td>
-                </tr>
-                <tr>
-                    <td><strong>Per Squad</strong></td>
-                    <td class="troop-cell">
-                        <div class="troop-icon infantry">I</div>
-                        ${infantryPerMarch.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
-                        <div class="troop-icon lancer">L</div>
-                        ${lancersPerMarch.toLocaleString()}
-                    </td>
-                    <td class="troop-cell">
-                        <div class="troop-icon marksman">M</div>
-                        ${marksmenPerMarch.toLocaleString()}
-                    </td>
-                    <td><strong>${Math.floor((result.squad.infantry + result.squad.lancers + result.squad.marksmen) / marches).toLocaleString()}</strong></td>
-                </tr>
+                        <span>Marksmen</span>
+                    </div>
+                    <span>${result.rally.marksmen.toLocaleString()}</span>
+                </div>
+                <div class="troop-result" style="border-top: 2px solid #dee2e6; margin-top: 0.5rem; padding-top: 0.5rem;">
+                    <div class="troop-name">
+                        <span><strong>Total Rally Troops</strong></span>
+                    </div>
+                    <span><strong>${(result.rally.infantry + result.rally.lancers + result.rally.marksmen).toLocaleString()}</strong></span>
+                </div>
+                <div class="troop-result" style="font-size: 0.9rem; color: #666;">
+                    <div class="troop-name">
+                        <span>Rally capacity</span>
+                    </div>
+                    <span>${rallyCapacity.toLocaleString()}</span>
+                </div>
             `;
 
             // Update summary
