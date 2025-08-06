@@ -490,31 +490,66 @@
             let remainingLancers = lancers - rallyLancersToAdd;
             let remainingMarksmen = marksmen - rallyMarksmenToAdd;
 
-            // Calculate total squad capacity
-            const totalSquadCapacity = marchLimit * marches;
-
-            // Calculate target squad ratios
-            const targetSquadInfantry = Math.floor(totalSquadCapacity * (infantryRatio / 100));
-            const targetSquadLancers = Math.floor(totalSquadCapacity * (lancerRatio / 100));
-            const targetSquadMarksmen = Math.floor(totalSquadCapacity * (marksmanRatio / 100));
-
-            // Fill squads with remaining troops, trying to maintain ratio
-            const squadMarksmenToAdd = Math.min(remainingMarksmen, targetSquadMarksmen);
-            const squadLancersToAdd = Math.min(remainingLancers, targetSquadLancers);
-            const squadInfantryToAdd = Math.min(remainingInfantry, targetSquadInfantry);
-
-            squad.marksmen = squadMarksmenToAdd;
-            squad.lancers = squadLancersToAdd;
-            squad.infantry = squadInfantryToAdd;
-
-            // Update remaining troops
-            remainingMarksmen -= squadMarksmenToAdd;
-            remainingLancers -= squadLancersToAdd;
-            remainingInfantry -= squadInfantryToAdd;
+            // Fill marches sequentially with ratio priority
+            const marchAllocations = [];
+            
+            for (let i = 0; i < marches; i++) {
+                const march = { infantry: 0, lancers: 0, marksmen: 0 };
+                
+                // Calculate target ratios for this march
+                const targetMarchInfantry = Math.floor(marchLimit * (infantryRatio / 100));
+                const targetMarchLancers = Math.floor(marchLimit * (lancerRatio / 100));
+                const targetMarchMarksmen = Math.floor(marchLimit * (marksmanRatio / 100));
+                
+                // Try to fill with ratio first
+                const marchMarksmen = Math.min(remainingMarksmen, targetMarchMarksmen);
+                const marchLancers = Math.min(remainingLancers, targetMarchLancers);
+                const marchInfantry = Math.min(remainingInfantry, targetMarchInfantry);
+                
+                march.marksmen = marchMarksmen;
+                march.lancers = marchLancers;
+                march.infantry = marchInfantry;
+                
+                // Update remaining troops
+                remainingMarksmen -= marchMarksmen;
+                remainingLancers -= marchLancers;
+                remainingInfantry -= marchInfantry;
+                
+                // Fill remaining space with priority: Marksmen > Lancers > Infantry
+                const marchTotal = march.marksmen + march.lancers + march.infantry;
+                const remainingSpace = marchLimit - marchTotal;
+                
+                if (remainingSpace > 0) {
+                    // Fill with Marksmen first
+                    const extraMarksmen = Math.min(remainingMarksmen, remainingSpace);
+                    march.marksmen += extraMarksmen;
+                    remainingMarksmen -= extraMarksmen;
+                    
+                    // Fill with Lancers second
+                    const newRemainingSpace = marchLimit - (march.marksmen + march.lancers + march.infantry);
+                    const extraLancers = Math.min(remainingLancers, newRemainingSpace);
+                    march.lancers += extraLancers;
+                    remainingLancers -= extraLancers;
+                    
+                    // Fill with Infantry last
+                    const finalRemainingSpace = marchLimit - (march.marksmen + march.lancers + march.infantry);
+                    const extraInfantry = Math.min(remainingInfantry, finalRemainingSpace);
+                    march.infantry += extraInfantry;
+                    remainingInfantry -= extraInfantry;
+                }
+                
+                marchAllocations.push(march);
+            }
+            
+            // Sum up squad totals
+            squad.infantry = marchAllocations.reduce((sum, march) => sum + march.infantry, 0);
+            squad.lancers = marchAllocations.reduce((sum, march) => sum + march.lancers, 0);
+            squad.marksmen = marchAllocations.reduce((sum, march) => sum + march.marksmen, 0);
 
             return {
                 squad,
                 rally,
+                marchAllocations,
                 leftover: {
                     infantry: remainingInfantry,
                     lancers: remainingLancers,
@@ -528,22 +563,14 @@
             };
         }
 
-        function displayResults(result) {
+                function displayResults(result) {
             const marches = parseInt(document.getElementById('marches').value) || 5;
             const marchLimit = parseInt(document.getElementById('marchLimit').value) || 60000;
             const rallyCapacity = parseInt(document.getElementById('rallyCapacity').value) || 100000;
 
-            // Calculate per-march breakdown with extra troops distributed
-            const infantryPerMarch = Math.floor(result.squad.infantry / marches);
-            const lancersPerMarch = Math.floor(result.squad.lancers / marches);
-            const marksmenPerMarch = Math.floor(result.squad.marksmen / marches);
-            const extraInfantry = result.squad.infantry % marches;
-            const extraLancers = result.squad.lancers % marches;
-            const extraMarksmen = result.squad.marksmen % marches;
-
             // Display results table
             const tableBody = document.getElementById('results-table-body');
-
+            
             let tableHTML = `
                 <tr>
                     <td><strong>Rally</strong></td>
@@ -563,27 +590,25 @@
                 </tr>
             `;
 
-            // Add individual march rows
-            for (let i = 1; i <= marches; i++) {
-                const marchInfantry = infantryPerMarch + (i <= extraInfantry ? 1 : 0);
-                const marchLancers = lancersPerMarch + (i <= extraLancers ? 1 : 0);
-                const marchMarksmen = marksmenPerMarch + (i <= extraMarksmen ? 1 : 0);
-                const marchTotal = marchInfantry + marchLancers + marchMarksmen;
+            // Add individual march rows using the marchAllocations
+            for (let i = 0; i < marches; i++) {
+                const march = result.marchAllocations[i];
+                const marchTotal = march.infantry + march.lancers + march.marksmen;
 
                 tableHTML += `
                     <tr>
-                        <td><strong>March ${i}</strong></td>
+                        <td><strong>March ${i + 1}</strong></td>
                         <td class="troop-cell">
                             <div class="troop-icon infantry">I</div>
-                            ${marchInfantry.toLocaleString()}
+                            ${march.infantry.toLocaleString()}
                         </td>
                         <td class="troop-cell">
                             <div class="troop-icon lancer">L</div>
-                            ${marchLancers.toLocaleString()}
+                            ${march.lancers.toLocaleString()}
                         </td>
                         <td class="troop-cell">
                             <div class="troop-icon marksman">M</div>
-                            ${marchMarksmen.toLocaleString()}
+                            ${march.marksmen.toLocaleString()}
                         </td>
                         <td><strong>${marchTotal.toLocaleString()}</strong></td>
                     </tr>
