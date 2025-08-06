@@ -295,7 +295,7 @@
                     <h3>⚡ Deployment Settings</h3>
                     <div class="form-row">
                         <label>Number of Marches:</label>
-                        <input type="number" id="marches" min="4" max="6" value="5">
+                        <input type="number" id="marches" min="3" max="6" value="5">
                     </div>
                     <div class="form-row">
                         <label>Deployment Limit per March:</label>
@@ -304,6 +304,13 @@
                     <div class="form-row">
                         <label>Rally Deployment Capacity:</label>
                         <input type="number" id="rallyCapacity" min="1000" value="100000">
+                    </div>
+                    <div class="form-row">
+                        <label>Rally Quality:</label>
+                        <select id="rallyQuality" style="width: 120px; padding: 0.5rem; border: 2px solid #dee2e6; border-radius: 5px; font-size: 1rem;">
+                            <option value="bad">Bad</option>
+                            <option value="good">Good</option>
+                        </select>
                     </div>
                 </div>
 
@@ -402,10 +409,11 @@
             const minInfantry = parseInt(document.getElementById('minInfantry').value) || 0;
             const minLancers = parseInt(document.getElementById('minLancers').value) || 0;
             const minMarksmen = parseInt(document.getElementById('minMarksmen').value) || 0;
+            const rallyQuality = document.getElementById('rallyQuality').value;
 
             // Validate inputs
-            if (marches < 4 || marches > 6) {
-                showError('Number of marches must be between 4 and 6');
+            if (marches < 3 || marches > 6) {
+                showError('Number of marches must be between 3 and 6');
                 return;
             }
 
@@ -417,7 +425,7 @@
             // Calculate formation
             const result = allocateTroops({
                 infantry, lancers, marksmen, marches, marchLimit, rallyCapacity,
-                minInfantry, minLancers, minMarksmen
+                minInfantry, minLancers, minMarksmen, rallyQuality
             });
 
             if (result.error) {
@@ -433,7 +441,7 @@
         function allocateTroops(params) {
             const {
                 infantry, lancers, marksmen, marches, marchLimit, rallyCapacity,
-                minInfantry, minLancers, minMarksmen
+                minInfantry, minLancers, minMarksmen, rallyQuality
             } = params;
 
             // Calculate total minimum requirements
@@ -470,74 +478,159 @@
             let remainingLancers = lancers - totalMinLancers;
             let remainingMarksmen = marksmen - totalMinMarksmen;
 
-            // Calculate available space in squads and rally
-            const squadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
-            const rallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
-
-            // PRIORITY: Fill squads first, then rally
-            // Start with squads - distribute Marksmen first (highest priority)
-            let squadMarksmenToAdd = Math.min(remainingMarksmen, squadSpace);
-            if (squadMarksmenToAdd > 0) {
-                const marksmenPerMarch = Math.floor(squadMarksmenToAdd / marches);
-                const extraMarksmen = squadMarksmenToAdd % marches;
+            if (rallyQuality === 'good') {
+                // GOOD RALLY: Fill rally first with 10% Infantry, 40% Lancers, 50% Marksmen ratio
+                const rallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
                 
-                squad.marksmen += marksmenPerMarch * marches;
-                // Distribute extra marksmen to first few marches
-                for (let i = 0; i < extraMarksmen; i++) {
-                    squad.marksmen += 1;
+                if (rallySpace > 0) {
+                    // Calculate target rally composition (10% Infantry, 40% Lancers, 50% Marksmen)
+                    const targetRallyInfantry = Math.floor(rallyCapacity * 0.10);
+                    const targetRallyLancers = Math.floor(rallyCapacity * 0.40);
+                    const targetRallyMarksmen = Math.floor(rallyCapacity * 0.50);
+                    
+                    // Fill rally with Marksmen first (50% of capacity)
+                    const rallyMarksmenNeeded = Math.max(0, targetRallyMarksmen - rally.marksmen);
+                    const rallyMarksmenToAdd = Math.min(remainingMarksmen, rallyMarksmenNeeded, rallySpace);
+                    if (rallyMarksmenToAdd > 0) {
+                        rally.marksmen += rallyMarksmenToAdd;
+                        remainingMarksmen -= rallyMarksmenToAdd;
+                    }
+                    
+                    // Fill rally with Lancers (40% of capacity)
+                    const remainingRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
+                    const rallyLancersNeeded = Math.max(0, targetRallyLancers - rally.lancers);
+                    const rallyLancersToAdd = Math.min(remainingLancers, rallyLancersNeeded, remainingRallySpace);
+                    if (rallyLancersToAdd > 0) {
+                        rally.lancers += rallyLancersToAdd;
+                        remainingLancers -= rallyLancersToAdd;
+                    }
+                    
+                    // Fill rally with Infantry (10% of capacity)
+                    const finalRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
+                    const rallyInfantryNeeded = Math.max(0, targetRallyInfantry - rally.infantry);
+                    const rallyInfantryToAdd = Math.min(remainingInfantry, rallyInfantryNeeded, finalRallySpace);
+                    if (rallyInfantryToAdd > 0) {
+                        rally.infantry += rallyInfantryToAdd;
+                        remainingInfantry -= rallyInfantryToAdd;
+                    }
                 }
-                remainingMarksmen -= squadMarksmenToAdd;
-            }
-
-            // Fill squads with Lancers
-            const remainingSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
-            let squadLancersToAdd = Math.min(remainingLancers, remainingSquadSpace);
-            if (squadLancersToAdd > 0) {
-                const lancersPerMarch = Math.floor(squadLancersToAdd / marches);
-                const extraLancers = squadLancersToAdd % marches;
                 
-                squad.lancers += lancersPerMarch * marches;
-                // Distribute extra lancers to first few marches
-                for (let i = 0; i < extraLancers; i++) {
-                    squad.lancers += 1;
-                }
-                remainingLancers -= squadLancersToAdd;
-            }
-
-            // Fill squads with Infantry
-            const finalSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
-            let squadInfantryToAdd = Math.min(remainingInfantry, finalSquadSpace);
-            if (squadInfantryToAdd > 0) {
-                const infantryPerMarch = Math.floor(squadInfantryToAdd / marches);
-                const extraInfantry = squadInfantryToAdd % marches;
+                // Now fill squads with remaining troops (Marksmen first, then Lancers, then Infantry)
+                const squadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
                 
-                squad.infantry += infantryPerMarch * marches;
-                // Distribute extra infantry to first few marches
-                for (let i = 0; i < extraInfantry; i++) {
-                    squad.infantry += 1;
+                // Fill squads with Marksmen
+                let squadMarksmenToAdd = Math.min(remainingMarksmen, squadSpace);
+                if (squadMarksmenToAdd > 0) {
+                    const marksmenPerMarch = Math.floor(squadMarksmenToAdd / marches);
+                    const extraMarksmen = squadMarksmenToAdd % marches;
+                    
+                    squad.marksmen += marksmenPerMarch * marches;
+                    // Distribute extra marksmen to first few marches
+                    for (let i = 0; i < extraMarksmen; i++) {
+                        squad.marksmen += 1;
+                    }
+                    remainingMarksmen -= squadMarksmenToAdd;
                 }
-                remainingInfantry -= squadInfantryToAdd;
-            }
+                
+                // Fill squads with Lancers
+                const remainingSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                let squadLancersToAdd = Math.min(remainingLancers, remainingSquadSpace);
+                if (squadLancersToAdd > 0) {
+                    const lancersPerMarch = Math.floor(squadLancersToAdd / marches);
+                    const extraLancers = squadLancersToAdd % marches;
+                    
+                    squad.lancers += lancersPerMarch * marches;
+                    // Distribute extra lancers to first few marches
+                    for (let i = 0; i < extraLancers; i++) {
+                        squad.lancers += 1;
+                    }
+                    remainingLancers -= squadLancersToAdd;
+                }
+                
+                // Fill squads with Infantry
+                const finalSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                let squadInfantryToAdd = Math.min(remainingInfantry, finalSquadSpace);
+                if (squadInfantryToAdd > 0) {
+                    const infantryPerMarch = Math.floor(squadInfantryToAdd / marches);
+                    const extraInfantry = squadInfantryToAdd % marches;
+                    
+                    squad.infantry += infantryPerMarch * marches;
+                    // Distribute extra infantry to first few marches
+                    for (let i = 0; i < extraInfantry; i++) {
+                        squad.infantry += 1;
+                    }
+                    remainingInfantry -= squadInfantryToAdd;
+                }
+                
+            } else {
+                // BAD RALLY: Original algorithm - fill squads first, then rally
+                const squadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                const rallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
 
-            // Now fill rally with remaining troops (Marksmen first, then Lancers, then Infantry)
-            let rallyMarksmenToAdd = Math.min(remainingMarksmen, rallySpace);
-            if (rallyMarksmenToAdd > 0) {
-                rally.marksmen += rallyMarksmenToAdd;
-                remainingMarksmen -= rallyMarksmenToAdd;
-            }
+                // Fill squads with Marksmen first (highest priority)
+                let squadMarksmenToAdd = Math.min(remainingMarksmen, squadSpace);
+                if (squadMarksmenToAdd > 0) {
+                    const marksmenPerMarch = Math.floor(squadMarksmenToAdd / marches);
+                    const extraMarksmen = squadMarksmenToAdd % marches;
+                    
+                    squad.marksmen += marksmenPerMarch * marches;
+                    // Distribute extra marksmen to first few marches
+                    for (let i = 0; i < extraMarksmen; i++) {
+                        squad.marksmen += 1;
+                    }
+                    remainingMarksmen -= squadMarksmenToAdd;
+                }
 
-            const remainingRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
-            let rallyLancersToAdd = Math.min(remainingLancers, remainingRallySpace);
-            if (rallyLancersToAdd > 0) {
-                rally.lancers += rallyLancersToAdd;
-                remainingLancers -= rallyLancersToAdd;
-            }
+                // Fill squads with Lancers
+                const remainingSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                let squadLancersToAdd = Math.min(remainingLancers, remainingSquadSpace);
+                if (squadLancersToAdd > 0) {
+                    const lancersPerMarch = Math.floor(squadLancersToAdd / marches);
+                    const extraLancers = squadLancersToAdd % marches;
+                    
+                    squad.lancers += lancersPerMarch * marches;
+                    // Distribute extra lancers to first few marches
+                    for (let i = 0; i < extraLancers; i++) {
+                        squad.lancers += 1;
+                    }
+                    remainingLancers -= squadLancersToAdd;
+                }
 
-            const finalRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
-            let rallyInfantryToAdd = Math.min(remainingInfantry, finalRallySpace);
-            if (rallyInfantryToAdd > 0) {
-                rally.infantry += rallyInfantryToAdd;
-                remainingInfantry -= rallyInfantryToAdd;
+                // Fill squads with Infantry
+                const finalSquadSpace = (marchLimit * marches) - (squad.infantry + squad.lancers + squad.marksmen);
+                let squadInfantryToAdd = Math.min(remainingInfantry, finalSquadSpace);
+                if (squadInfantryToAdd > 0) {
+                    const infantryPerMarch = Math.floor(squadInfantryToAdd / marches);
+                    const extraInfantry = squadInfantryToAdd % marches;
+                    
+                    squad.infantry += infantryPerMarch * marches;
+                    // Distribute extra infantry to first few marches
+                    for (let i = 0; i < extraInfantry; i++) {
+                        squad.infantry += 1;
+                    }
+                    remainingInfantry -= squadInfantryToAdd;
+                }
+
+                // Now fill rally with remaining troops (Marksmen first, then Lancers, then Infantry)
+                let rallyMarksmenToAdd = Math.min(remainingMarksmen, rallySpace);
+                if (rallyMarksmenToAdd > 0) {
+                    rally.marksmen += rallyMarksmenToAdd;
+                    remainingMarksmen -= rallyMarksmenToAdd;
+                }
+
+                const remainingRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
+                let rallyLancersToAdd = Math.min(remainingLancers, remainingRallySpace);
+                if (rallyLancersToAdd > 0) {
+                    rally.lancers += rallyLancersToAdd;
+                    remainingLancers -= rallyLancersToAdd;
+                }
+
+                const finalRallySpace = rallyCapacity - (rally.infantry + rally.lancers + rally.marksmen);
+                let rallyInfantryToAdd = Math.min(remainingInfantry, finalRallySpace);
+                if (rallyInfantryToAdd > 0) {
+                    rally.infantry += rallyInfantryToAdd;
+                    remainingInfantry -= rallyInfantryToAdd;
+                }
             }
 
             return {
