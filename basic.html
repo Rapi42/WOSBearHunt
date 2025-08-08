@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whiteout Survival - Basic Formation Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .input-group h3 {
+            color: #495057;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+        }
+
+        .form-row label {
+            font-weight: 600;
+            color: #495057;
+            flex: 1;
+        }
+
+        .form-row input, .form-row select {
+            width: 120px;
+            padding: 0.5rem;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .form-row input:focus, .form-row select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .troop-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .troop-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .infantry { background: #28a745; }
+        .lancer { background: #ffc107; color: #333; }
+        .marksman { background: #dc3545; }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .results-section {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            table-layout: fixed;
+        }
+
+        .results-table th {
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 600;
+            border: none;
+        }
+
+        .results-table td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
+
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .results-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .summary-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .summary-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .success {
+            color: #155724;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid #dee2e6;
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .results-table {
+                font-size: 0.9rem;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚔️ Whiteout Survival</h1>
+            <p>Basic Formation Calculator</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <div class="input-group">
+                    <h3>🎯 Troop Counts</h3>
+                    <div class="form-row">
+                        <div class="troop-type">
+                            <div class="troop-icon infantry">I</div>
+                            <label>Infantry:</label>
+                        </div>
+                        <input type="number" id="infantry" min="0" value="100000">
+                    </div>
+                    <div class="form-row">
+                        <div class="troop-type">
+                            <div class="troop-icon lancer">L</div>
+                            <label>Lancers:</label>
+                        </div>
+                        <input type="number" id="lancers" min="0" value="80000">
+                    </div>
+                    <div class="form-row">
+                        <div class="troop-type">
+                            <div class="troop-icon marksman">M</div>
+                            <label>Marksmen:</label>
+                        </div>
+                        <input type="number" id="marksmen" min="0" value="60000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <h3>⚡ Deployment Settings</h3>
+                    <div class="form-row">
+                        <label>Number of Marches:</label>
+                        <input type="number" id="marches" min="3" max="6" value="5">
+                    </div>
+                    <div class="form-row">
+                        <label>Deployment Limit per March:</label>
+                        <input type="number" id="marchLimit" min="1000" value="60000">
+                    </div>
+                    <div class="form-row">
+                        <label>March Deployment Capacity:</label>
+                        <input type="number" id="rallyCapacity" min="1000" value="100000">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <h3>📊 Troop Ratio</h3>
+                    <div class="form-row">
+                        <label>Infantry %:</label>
+                        <input type="number" id="infantryRatio" min="0" max="100" value="10">
+                    </div>
+                    <div class="form-row">
+                        <label>Lancers %:</label>
+                        <input type="number" id="lancerRatio" min="0" max="100" value="40">
+                    </div>
+                    <div class="form-row">
+                        <label>Marksmen %:</label>
+                        <input type="number" id="marksmanRatio" min="0" max="100" value="50">
+                    </div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateFormation()">
+                🧮 Calculate Formation
+            </button>
+
+            <div id="error-message" class="error" style="display: none;"></div>
+            <div id="success-message" class="success" style="display: none;"></div>
+
+            <div id="results" class="results-section">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Formation</th>
+                            <th>Infantry</th>
+                            <th>Lancers</th>
+                            <th>Marksmen</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-table-body">
+                    </tbody>
+                </table>
+
+                <div class="summary-section">
+                    <h3>📈 Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <div class="summary-value" id="total-used">0</div>
+                            <div class="summary-label">Total Troops Used</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="total-leftover">0</div>
+                            <div class="summary-label">Total Leftover</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="squad-total">0</div>
+                            <div class="summary-label">Squad Total</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-value" id="rally-total">0</div>
+                            <div class="summary-label">Rally Total</div>
+                        </div>
+                    </div>
+                    
+                    <div id="leftover-breakdown" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #dee2e6;">
+                        <h4 style="color: #495057; margin-bottom: 1rem;">📦 Leftover Troops Breakdown</h4>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <div class="summary-value" id="leftover-infantry">0</div>
+                                <div class="summary-label">Leftover Infantry</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value" id="leftover-lancers">0</div>
+                                <div class="summary-label">Leftover Lancers</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value" id="leftover-marksmen">0</div>
+                                <div class="summary-label">Leftover Marksmen</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="index.html">Advanced Version</a>
+        </div>
+    </div>
+
+    <script>
+        function calculateFormation() {
+            // Clear previous messages
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+
+            // Get input values
+            const infantry = parseInt(document.getElementById('infantry').value) || 0;
+            const lancers = parseInt(document.getElementById('lancers').value) || 0;
+            const marksmen = parseInt(document.getElementById('marksmen').value) || 0;
+            const marches = parseInt(document.getElementById('marches').value) || 5;
+            const marchLimit = parseInt(document.getElementById('marchLimit').value) || 60000;
+            const rallyCapacity = parseInt(document.getElementById('rallyCapacity').value) || 100000;
+            const infantryRatio = parseInt(document.getElementById('infantryRatio').value) || 10;
+            const lancerRatio = parseInt(document.getElementById('lancerRatio').value) || 40;
+            const marksmanRatio = parseInt(document.getElementById('marksmanRatio').value) || 50;
+
+            // Validate inputs
+            if (marches < 3 || marches > 6) {
+                showError('Number of marches must be between 3 and 6');
+                return;
+            }
+
+            if (infantry < 0 || lancers < 0 || marksmen < 0) {
+                showError('Troop counts cannot be negative');
+                return;
+            }
+
+            const totalRatio = infantryRatio + lancerRatio + marksmanRatio;
+            if (totalRatio !== 100) {
+                showError('Ratios must add up to 100% (currently ' + totalRatio + '%)');
+                return;
+            }
+
+            // Calculate formation
+            const result = allocateTroops({
+                infantry, lancers, marksmen, marches, marchLimit, rallyCapacity,
+                infantryRatio, lancerRatio, marksmanRatio
+            });
+
+            if (result.error) {
+                showError(result.error);
+                return;
+            }
+
+            // Display results
+            displayResults(result);
+            showSuccess('Formation calculated successfully!');
+        }
+
+        function allocateTroops(params) {
+            const {
+                infantry, lancers, marksmen, marches, marchLimit, rallyCapacity,
+                infantryRatio, lancerRatio, marksmanRatio
+            } = params;
+
+            // Initialize allocation
+            const squad = { infantry: 0, lancers: 0, marksmen: 0 };
+            const rally = { infantry: 0, lancers: 0, marksmen: 0 };
+
+            // Calculate target ratios
+            const targetRallyInfantry = Math.floor(rallyCapacity * (infantryRatio / 100));
+            const targetRallyLancers = Math.floor(rallyCapacity * (lancerRatio / 100));
+            const targetRallyMarksmen = Math.floor(rallyCapacity * (marksmanRatio / 100));
+
+            // Fill rally first with the target ratio
+            const rallyMarksmenToAdd = Math.min(marksmen, targetRallyMarksmen);
+            const rallyLancersToAdd = Math.min(lancers, targetRallyLancers);
+            const rallyInfantryToAdd = Math.min(infantry, targetRallyInfantry);
+
+            rally.marksmen = rallyMarksmenToAdd;
+            rally.lancers = rallyLancersToAdd;
+            rally.infantry = rallyInfantryToAdd;
+
+            // Calculate remaining troops
+            let remainingInfantry = infantry - rallyInfantryToAdd;
+            let remainingLancers = lancers - rallyLancersToAdd;
+            let remainingMarksmen = marksmen - rallyMarksmenToAdd;
+
+            // Fill marches sequentially with ratio priority
+            const marchAllocations = [];
+            
+            for (let i = 0; i < marches; i++) {
+                const march = { infantry: 0, lancers: 0, marksmen: 0 };
+                
+                // Calculate target ratios for this march
+                const targetMarchInfantry = Math.floor(marchLimit * (infantryRatio / 100));
+                const targetMarchLancers = Math.floor(marchLimit * (lancerRatio / 100));
+                const targetMarchMarksmen = Math.floor(marchLimit * (marksmanRatio / 100));
+                
+                // Try to fill with ratio first
+                const marchMarksmen = Math.min(remainingMarksmen, targetMarchMarksmen);
+                const marchLancers = Math.min(remainingLancers, targetMarchLancers);
+                const marchInfantry = Math.min(remainingInfantry, targetMarchInfantry);
+                
+                march.marksmen = marchMarksmen;
+                march.lancers = marchLancers;
+                march.infantry = marchInfantry;
+                
+                // Update remaining troops
+                remainingMarksmen -= marchMarksmen;
+                remainingLancers -= marchLancers;
+                remainingInfantry -= marchInfantry;
+                
+                // Fill remaining space with priority: Marksmen > Lancers > Infantry
+                const marchTotal = march.marksmen + march.lancers + march.infantry;
+                const remainingSpace = marchLimit - marchTotal;
+                
+                if (remainingSpace > 0) {
+                    // Fill with Marksmen first
+                    const extraMarksmen = Math.min(remainingMarksmen, remainingSpace);
+                    march.marksmen += extraMarksmen;
+                    remainingMarksmen -= extraMarksmen;
+                    
+                    // Fill with Lancers second
+                    const newRemainingSpace = marchLimit - (march.marksmen + march.lancers + march.infantry);
+                    const extraLancers = Math.min(remainingLancers, newRemainingSpace);
+                    march.lancers += extraLancers;
+                    remainingLancers -= extraLancers;
+                    
+                    // Fill with Infantry last
+                    const finalRemainingSpace = marchLimit - (march.marksmen + march.lancers + march.infantry);
+                    const extraInfantry = Math.min(remainingInfantry, finalRemainingSpace);
+                    march.infantry += extraInfantry;
+                    remainingInfantry -= extraInfantry;
+                }
+                
+                marchAllocations.push(march);
+            }
+            
+            // Sum up squad totals
+            squad.infantry = marchAllocations.reduce((sum, march) => sum + march.infantry, 0);
+            squad.lancers = marchAllocations.reduce((sum, march) => sum + march.lancers, 0);
+            squad.marksmen = marchAllocations.reduce((sum, march) => sum + march.marksmen, 0);
+
+            return {
+                squad,
+                rally,
+                marchAllocations,
+                leftover: {
+                    infantry: remainingInfantry,
+                    lancers: remainingLancers,
+                    marksmen: remainingMarksmen
+                },
+                totalUsed: {
+                    infantry: infantry - remainingInfantry,
+                    lancers: lancers - remainingLancers,
+                    marksmen: marksmen - remainingMarksmen
+                }
+            };
+        }
+
+        function displayResults(result) {
+            const marches = parseInt(document.getElementById('marches').value) || 5;
+            const marchLimit = parseInt(document.getElementById('marchLimit').value) || 60000;
+            const rallyCapacity = parseInt(document.getElementById('rallyCapacity').value) || 100000;
+
+            // Display results table
+            const tableBody = document.getElementById('results-table-body');
+            
+            let tableHTML = `
+                <tr>
+                    <td><strong>Rally</strong></td>
+                    <td>${result.rally.infantry.toLocaleString()}</td>
+                    <td>${result.rally.lancers.toLocaleString()}</td>
+                    <td>${result.rally.marksmen.toLocaleString()}</td>
+                    <td><strong>${(result.rally.infantry + result.rally.lancers + result.rally.marksmen).toLocaleString()}</strong></td>
+                </tr>
+            `;
+
+            // Add individual march rows using the marchAllocations
+            for (let i = 0; i < marches; i++) {
+                const march = result.marchAllocations[i];
+                const marchTotal = march.infantry + march.lancers + march.marksmen;
+
+                tableHTML += `
+                    <tr>
+                        <td><strong>March ${i + 1}</strong></td>
+                        <td>${march.infantry.toLocaleString()}</td>
+                        <td>${march.lancers.toLocaleString()}</td>
+                        <td>${march.marksmen.toLocaleString()}</td>
+                        <td><strong>${marchTotal.toLocaleString()}</strong></td>
+                    </tr>
+                `;
+            }
+
+            tableBody.innerHTML = tableHTML;
+
+            // Update summary
+            const totalUsed = result.totalUsed.infantry + result.totalUsed.lancers + result.totalUsed.marksmen;
+            const totalLeftover = result.leftover.infantry + result.leftover.lancers + result.leftover.marksmen;
+            const squadTotal = result.squad.infantry + result.squad.lancers + result.squad.marksmen;
+            const rallyTotal = result.rally.infantry + result.rally.lancers + result.rally.marksmen;
+
+            document.getElementById('total-used').textContent = totalUsed.toLocaleString();
+            document.getElementById('total-leftover').textContent = totalLeftover.toLocaleString();
+            document.getElementById('squad-total').textContent = squadTotal.toLocaleString();
+            document.getElementById('rally-total').textContent = rallyTotal.toLocaleString();
+
+            // Update leftover breakdown
+            document.getElementById('leftover-infantry').textContent = result.leftover.infantry.toLocaleString();
+            document.getElementById('leftover-lancers').textContent = result.leftover.lancers.toLocaleString();
+            document.getElementById('leftover-marksmen').textContent = result.leftover.marksmen.toLocaleString();
+
+            // Show results
+            document.getElementById('results').classList.add('show');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('results').classList.remove('show');
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        // Add input validation
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.value < 0) this.value = 0;
+            });
+        });
+    </script>
+</body>
+</html> 
