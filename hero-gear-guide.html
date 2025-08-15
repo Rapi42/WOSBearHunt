@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Gear Guide - Whiteout Survival</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .content h2 {
+            color: #495057;
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+            font-size: 1.8rem;
+        }
+
+        .content h3 {
+            color: #495057;
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.4rem;
+        }
+
+        .content h4 {
+            color: #495057;
+            margin: 1rem 0 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
+        .content p {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .content ul, .content ol {
+            margin: 1rem 0 1rem 2rem;
+            color: #333;
+        }
+
+        .content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .priority-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .priority-high {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+
+        .priority-low {
+            background: #e2e3e5;
+            border-left-color: #6c757d;
+        }
+
+        .priority-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .priority-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .priority-text {
+            flex: 1;
+        }
+
+        .gear-type {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .troop-type {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .image-section {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .image-section img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin: 1rem 0;
+        }
+
+        .image-caption {
+            font-style: italic;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .summary-box h3 {
+            color: white;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-box ul {
+            color: white;
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        .summary-box li {
+            margin-bottom: 0.5rem;
+        }
+
+        .tips-box {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .tips-box h4 {
+            color: #0c5460;
+            margin-bottom: 1rem;
+        }
+
+        .tips-box ul {
+            color: #0c5460;
+            margin: 1rem 0 1rem 2rem;
+        }
+
+        .navigation {
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .nav-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            margin: 0 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid #dee2e6;
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 1rem;
+            }
+            
+            .priority-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .priority-number {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚔️ Hero Gear Guide</h1>
+            <p>Master Your Equipment Strategy in Whiteout Survival</p>
+        </div>
+
+        <div class="content">
+            <div class="tips-box">
+                <h4>📖 Quick Summary</h4>
+                <p><strong>If you don't want to read everything and just want to know what to do quickly:</strong></p>
+                <ul>
+                    <li>Focus on 3 sets only, one of each troop type</li>
+                    <li>Can have 2 additional sets for arena, but far less upgraded than first 3</li>
+                    <li>Priority in the 3 sets: Infantry health > Marksman lethality > Lancer lethality >> Marksman health > Infantry lethality > Lancer health</li>
+                    <li>Boots & goggles for lethality, belt & gloves for health</li>
+                </ul>
+            </div>
+
+            <h2>Priority and Focus</h2>
+            <p>You only really want to focus on 3 sets of gear, one for each type of troops. With 4 pieces per set, that makes it 12 pieces of gear to focus on.</p>
+            
+            <p>In those 3 sets, here's the priority by order of importance:</p>
+
+            <div class="priority-section priority-high">
+                <h3>🎯 Highest Priority</h3>
+                <div class="priority-item">
+                    <div class="priority-number">1</div>
+                    <div class="priority-text">
+                        <span class="gear-type">Belt & Gloves</span> for <span class="troop-type">Infantry</span>
+                    </div>
+                </div>
+                <div class="priority-item">
+                    <div class="priority-number">2</div>
+                    <div class="priority-text">
+                        <span class="gear-type">Boots & Goggles</span> for <span class="troop-type">Marksman</span>
+                    </div>
+                </div>
+                <div class="priority-item">
+                    <div class="priority-number">3</div>
+                    <div class="priority-text">
+                        <span class="gear-type">Boots & Goggles</span> for <span class="troop-type">Lancer</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="priority-section priority-low">
+                <h3>📉 Lower Priority</h3>
+                <div class="priority-item">
+                    <div class="priority-number">4</div>
+                    <div class="priority-text">
+                        <span class="gear-type">Belt & Gloves</span> for <span class="troop-type">Marksman</span>
+                    </div>
+                </div>
+                <div class="priority-item">
+                    <div class="priority-number">5</div>
+                    <div class="priority-text">
+                        <span class="gear-type">Boots & Goggles</span> for <span class="troop-type">Infantry</span>
+                    </div>
+                </div>
+                <div class="priority-item">
+                    <div class="priority-number">6</div>
+                    <div class="priority-text">
+                        <span class="gear-type">Belt & Gloves</span> for <span class="troop-type">Lancer</span>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Enhancement Level (Component XP)</h3>
+            <p>The first 3 priorities (so the first 6 pieces) should be much higher than the next 3 priorities. Around twice the level, to give you an idea. There isn't necessarily an exact method of upgrading, but I would suggest having about 5 to 10 levels of difference between priorities, with a much bigger difference between the third priority and the fourth.</p>
+
+            <h3>Mastery Level (Essence Stones)</h3>
+            <p>I would suggest getting the first 3 priorities to level 4-5, and the next 3 to level 1-2. Once you reach that point, you can start pouring your essence stones in one specific piece of gear to get it to become red +20 (you unlock the red gear at mastery level 10 and enhancement level 100).</p>
+            
+            <p>Here's the order of those pieces, you want to get the first one to red +20 before moving on to the next one:</p>
+            <ol>
+                <li>Infantry gloves</li>
+                <li>Marksman goggles</li>
+                <li>Lancer goggles</li>
+            </ol>
+
+            <h2>Secondary Sets</h2>
+            <p>As I said, you only really want to focus on 3 primary sets. However, in arena and exploration, you have 5 heroes. Therefore, it can be good to have two additional sets of gear for those 2 additional heroes you will use in arena, but they should be of much lower quality than the first 3. I personally do not put any essence stones in those sets and only have them at level 20-25 in component XP.</p>
+
+            <h2>How to Fix Your Gear</h2>
+            <p>If your gear doesn't correspond to what I have described, do not panic! It can be fixed (granted you don't have any red pieces of gear, because those cannot be reverted back).</p>
+
+            <h3>How to do so:</h3>
+            <ol>
+                <li>First, unequip all the gear on all your heroes. That will also give you an idea of who your strongest hero in each category is.</li>
+                <li>Then, click on them and click equip. It will automatically pick the best gear for them among what you have. Do so for the strongest hero of each type (3 heroes).</li>
+                <li>Reforge all the other pieces of gear that aren't equipped. Go in your backpack, click on the piece of gear, then on the reforge icon at the bottom right. Make sure it's "enhancement reforge", this will give you back 100% of the XP used as XP components.</li>
+                <li>Once you've done that for all your unequipped gear, equip the two additional heroes you will use in arena. It will pick the rarest pieces of gear first.</li>
+                <li>You can then use all the XP components you got on your main 3 sets following the priority as explained above and put 20-25 levels in your 2 additional sets as well (or a little more or less depending on your preferences and if you focus on arena or not).</li>
+            </ol>
+            
+            <div class="tips-box">
+                <p><strong>Note:</strong> I would only use the mastery reforge for any pieces of gear outside of your top 5 sets, as it only gives back half of the essence stones.</p>
+            </div>
+
+            <h2>Explanations</h2>
+            <p><em>This might be a little long winded so feel free to skip this part, but if you are interested or need a good reason why upgrade your gear in the way presented before, here it is.</em></p>
+
+            <h3>Why 3 Sets?</h3>
+            <p>The idea is you want to have the strongest march as possible. A march needs 3 heroes, one of each type. Therefore you only really need to have gear for those 3 heroes. Since you can unequip and reequip hero gear very easily, each time you get a new strongest hero for a specific troop type, simply unequip your set on the old hero and equip it on the new one.</p>
+            
+            <p>Why do you want the strongest march possible? When you start a rally or are the captain in a garrison, your hero gear will count. But not when you join a rally or aren't the captain of a garrison, in that case, only the first expedition skill (top right skill) of your first hero will count, but nothing else. That's why it's not important to have gear on your bear heroes or on Patrick or Sergey (if Sergey isn't your strongest infantry hero that is) and only on your 3 best heroes you use to start a rally (against the bear, a player, a turret, the castle, a polar terror,...).</p>
+            
+            <p>Having a really strong march will also be very useful for many purposes, for the labyrinth (Land of the brave and Gaia heart), for mercenaries, for PvP (during BIA or SvS for example), for frostfire mines if you want to occupy the center or kick someone from a mine, for the Alliance Championship, etc...</p>
+
+            <h3>Why That Specific Priority?</h3>
+            <p>If you click on a piece of gear, it will give you a breakdown of the stats this piece gives. You will notice for boots and goggles it gives lethality, and for belts and gloves it gives health.</p>
+            
+            <p>Since most optimal ratios use mostly infantry, it is the most important troop type. They will be the one to tank the damage and if they die you will quickly lose the fight. Infantry health is therefore the most important stat of all and why belts and gloves on infantry are the first priority (and getting the gloves to red +20 gives an additional bonus of +20% infantry defense).</p>
+            
+            <p>Next up is marksmen, they deal the most damage of all troop types and are the second most important (you can notice that in the ratio 50-20-30 that's usually recommended), and for dealing damage, you want lethality. Finally lancers, they're less important than the first two but shouldn't be neglected either, as they also deal a lot of damage, hence why you also want lethality on them.</p>
+            
+            <p>That's the reason behind the first 3 priorities and why they should be improved a lot more than the following 3.</p>
+            
+            <p>For the next 3 priorities, you want your marksmen to have some health too as they are vulnerable (you can notice if you have a garrison that when you get attacked, you'll get a majority of infantry in your infirmary but marksmen too, even before lancers). With the fighting mechanics, some lancers can get to the marksmen in the backline and kill them. Then, having your infantry deal a bit more damage is good too but not as important, and getting more health on lancers is the least important of all 6 priorities.</p>
+
+            <h3>Why Two Additional Sets?</h3>
+            <p>Those will be for arena and exploration, as you need 5 heroes. The first enhancement levels are very cheap and thus worth getting to get you stronger there. But again, I wouldn't invest too much as you really want to focus on your first 3 sets and your main march.</p>
+
+            <h2>Additional Tips</h2>
+            <div class="tips-box">
+                <h4>💎 Getting Mythic Gear</h4>
+                <p>To get mythic gear (gold pieces of gear), you need to buy the custom mythic hero gear chest for 12k coins in the arena shop every chance you get (and buy nothing else from that shop, unless you're performing really well in arena and can afford to buy more than that chest every week). It is highly recommended to keep buying it even after your 5 sets are all mythic because to upgrade your gear to red, you will need to spend mythic gear pieces.</p>
+                
+                <p>For the same reason, it is also important to buy the mithril for 2.5k glowstones in the labyrinth shop every week. You might not have any use for it now, but trust me once you reach red gear you will be very happy to have bought it, as it is really hard to get by and you will need a lot of it.</p>
+            </div>
+
+            <div class="tips-box">
+                <h4>🔄 Hero Switching</h4>
+                <p>If you don't have Alonso, and are using Gina in arena (I wouldn't recommend using Bahiti there as he's not as good), you will most likely need to switch your best marksmen gear between her and Bahiti. Switch it to Bahiti every time you do bear, sign up for alliance championship or do Gaia heart and Land of the brave in the labyrinth, otherwise just leave it on Gina to be as strong as possible in arena.</p>
+            </div>
+
+            <div class="image-section">
+                <h3>📸 Reference Images</h3>
+                <img src="arenashop.png" alt="Arena Shop - Custom Mythic Hero Gear Chest" class="gear-image">
+                <div class="image-caption">Arena Shop - Buy the Custom Mythic Hero Gear Chest for 12k coins</div>
+                
+                <img src="labyrinthshop.png" alt="Labyrinth Shop - Mithril for 2.5k Glowstones" class="gear-image">
+                <div class="image-caption">Labyrinth Shop - Buy Mithril for 2.5k Glowstones weekly</div>
+                
+                <img src="reforge.png" alt="Reforge System - Enhancement and Mastery Reforge" class="gear-image">
+                <div class="image-caption">Reforge System - Use Enhancement Reforge for 100% XP return</div>
+                
+                <img src="prio.png" alt="Priority System - Gear Upgrade Priority" class="gear-image">
+                <div class="image-caption">Priority System - Follow the gear upgrade order for optimal results</div>
+            </div>
+
+            <div class="summary-box">
+                <h3>📋 Quick Summary</h3>
+                <ul>
+                    <li><strong>Focus on 3 sets only</strong>, one of each troop type</li>
+                    <li><strong>Can have 2 additional sets for arena</strong>, but far less upgraded than first 3</li>
+                    <li><strong>Priority in the 3 sets:</strong> Infantry health > Marksman lethality > Lancer lethality >> Marksman health > Infantry lethality > Lancer health</li>
+                    <li><strong>Boots & goggles for lethality</strong>, <strong>belt & gloves for health</strong></li>
+                </ul>
+            </div>
+
+            <div class="navigation">
+                <a href="index.html" class="nav-btn">🏠 Back to Calculator</a>
+                <a href="basic.html" class="nav-btn">📊 Basic Version</a>
+                <a href="advanced.html" class="nav-btn">⚡ Advanced Version</a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <a href="index.html">Back to Main Calculator</a>
+        </div>
+    </div>
+</body>
+</html> 
