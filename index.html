@@ -364,19 +364,35 @@
                 </div>
 
                 <div class="input-group">
-                    <h3>📊 Minimum Requirements</h3>
-                                         <div class="form-row">
-                         <label>Min Infantry per Unit:</label>
-                         <input type="number" id="minInfantry" min="0" value="5000">
-                     </div>
-                     <div class="form-row">
-                         <label>Min Lancers per Unit:</label>
-                         <input type="number" id="minLancers" min="0" value="10000">
-                     </div>
-                     <div class="form-row">
-                         <label>Min Marksmen per Unit:</label>
-                         <input type="number" id="minMarksmen" min="0" value="10000">
-                     </div>
+                    <h3>📊 Squad Minimum Requirements</h3>
+                    <div class="form-row">
+                        <label>Min Infantry per Squad:</label>
+                        <input type="number" id="minSquadInfantry" min="0" value="5000">
+                    </div>
+                    <div class="form-row">
+                        <label>Min Lancers per Squad:</label>
+                        <input type="number" id="minSquadLancers" min="0" value="10000">
+                    </div>
+                    <div class="form-row">
+                        <label>Min Marksmen per Squad:</label>
+                        <input type="number" id="minSquadMarksmen" min="0" value="10000">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <h3>🎯 Rally Minimum Requirements</h3>
+                    <div class="form-row">
+                        <label>Min Infantry for Rally:</label>
+                        <input type="number" id="minRallyInfantry" min="0" value="5000">
+                    </div>
+                    <div class="form-row">
+                        <label>Min Lancers for Rally:</label>
+                        <input type="number" id="minRallyLancers" min="0" value="10000">
+                    </div>
+                    <div class="form-row">
+                        <label>Min Marksmen for Rally:</label>
+                        <input type="number" id="minRallyMarksmen" min="0" value="10000">
+                    </div>
                 </div>
             </div>
 
@@ -489,9 +505,12 @@
             const marches = parseInt(document.getElementById('marches').value) || 5;
             const marchLimit = parseInt(document.getElementById('marchLimit').value) || 60000;
             const rallyCapacity = parseInt(document.getElementById('rallyCapacity').value) || 100000;
-            const minInfantry = parseInt(document.getElementById('minInfantry').value) || 0;
-            const minLancers = parseInt(document.getElementById('minLancers').value) || 0;
-            const minMarksmen = parseInt(document.getElementById('minMarksmen').value) || 0;
+            const minSquadInfantry = parseInt(document.getElementById('minSquadInfantry').value) || 0;
+            const minSquadLancers = parseInt(document.getElementById('minSquadLancers').value) || 0;
+            const minSquadMarksmen = parseInt(document.getElementById('minSquadMarksmen').value) || 0;
+            const minRallyInfantry = parseInt(document.getElementById('minRallyInfantry').value) || 0;
+            const minRallyLancers = parseInt(document.getElementById('minRallyLancers').value) || 0;
+            const minRallyMarksmen = parseInt(document.getElementById('minRallyMarksmen').value) || 0;
             const rallyCustomization = document.getElementById('rallyCustomization').value;
             const rallyInfantryRatio = parseInt(document.getElementById('rallyInfantryRatio').value) || 10;
             const rallyLancerRatio = parseInt(document.getElementById('rallyLancerRatio').value) || 40;
@@ -519,8 +538,9 @@
             // Calculate formation
             const result = allocateTroops({
                 infantry, lancers, marksmen, marches, marchLimit, rallyCapacity,
-                minInfantry, minLancers, minMarksmen, rallyCustomization,
-                rallyInfantryRatio, rallyLancerRatio, rallyMarksmanRatio
+                minSquadInfantry, minSquadLancers, minSquadMarksmen,
+                minRallyInfantry, minRallyLancers, minRallyMarksmen,
+                rallyCustomization, rallyInfantryRatio, rallyLancerRatio, rallyMarksmanRatio
             });
 
             if (result.error) {
@@ -536,14 +556,15 @@
         function allocateTroops(params) {
             const {
                 infantry, lancers, marksmen, marches, marchLimit, rallyCapacity,
-                minInfantry, minLancers, minMarksmen, rallyCustomization,
-                rallyInfantryRatio, rallyLancerRatio, rallyMarksmanRatio
+                minSquadInfantry, minSquadLancers, minSquadMarksmen,
+                minRallyInfantry, minRallyLancers, minRallyMarksmen,
+                rallyCustomization, rallyInfantryRatio, rallyLancerRatio, rallyMarksmanRatio
             } = params;
 
             // Calculate total minimum requirements
-            const totalMinInfantry = minInfantry * (marches + 1); // +1 for rally
-            const totalMinLancers = minLancers * (marches + 1);
-            const totalMinMarksmen = minMarksmen * (marches + 1);
+            const totalMinInfantry = (minSquadInfantry * marches) + minRallyInfantry;
+            const totalMinLancers = (minSquadLancers * marches) + minRallyLancers;
+            const totalMinMarksmen = (minSquadMarksmen * marches) + minRallyMarksmen;
 
             // Check if we have enough troops for minimums
             if (infantry < totalMinInfantry) {
@@ -558,15 +579,15 @@
 
             // Initialize allocation
             const squad = {
-                infantry: minInfantry * marches,
-                lancers: minLancers * marches,
-                marksmen: minMarksmen * marches
+                infantry: minSquadInfantry * marches,
+                lancers: minSquadLancers * marches,
+                marksmen: minSquadMarksmen * marches
             };
 
             const rally = {
-                infantry: minInfantry,
-                lancers: minLancers,
-                marksmen: minMarksmen
+                infantry: minRallyInfantry,
+                lancers: minRallyLancers,
+                marksmen: minRallyMarksmen
             };
 
             // Calculate remaining troops after minimum allocation
